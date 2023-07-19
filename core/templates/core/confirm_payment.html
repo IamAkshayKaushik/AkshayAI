@@ -107,11 +107,11 @@
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 16px;
       -webkit-font-smoothing: antialiased;
-      display: flex;
+      {% comment %} display: flex; {% endcomment %}
       justify-content: center;
       align-content: center;
-      height: 100vh;
-      width: 100vw;
+      {% comment %} height: 100vh;
+      width: 100vw; {% endcomment %}
     }
 
     form {
@@ -137,6 +137,10 @@
     }
 
     #payment-element {
+      margin-bottom: 24px;
+    }
+
+    #address-element {
       margin-bottom: 24px;
     }
 
@@ -265,6 +269,12 @@
     };
     elements = stripe.elements({ appearance, clientSecret });
 
+    //https://stripe.com/docs/js/elements_object/create_link_authentication_element#link_authentication_element_create-options
+    const linkElementOptions = {
+      defaultValues: {
+        email: "{{ user.email }}",
+      },
+    };
     const linkAuthenticationElement = elements.create("linkAuthentication");
     linkAuthenticationElement.mount("#link-authentication-element");
 
@@ -272,13 +282,21 @@
       emailAddress = event.value.email;
     });
 
+    // https://stripe.com/docs/js/elements_object/create_payment_element#payment_element_create-options-defaultValues
     const paymentElementOptions = {
       layout: "tabs",
     };
-
     const paymentElement = elements.create("payment", paymentElementOptions);
     paymentElement.mount("#payment-element");
-    const addressElement = elements.create("address", { mode: "billing" });
+
+    // https://stripe.com/docs/js/elements_object/create_address_element#address_element_create-options-defaultValues
+    const addressElementOptions = {
+      mode: "billing",
+      defaultValues: {
+        name: "{{ user.username }} {{ user.last_name }}",
+      },
+    };
+    const addressElement = elements.create("address", addressElementOptions);
     addressElement.mount("#address-element");
   }
 
