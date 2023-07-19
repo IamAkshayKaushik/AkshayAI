@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Buy Tokens</title>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <nav class="flex items-center justify-between p-4 bg-gray-900">
+      <div class="text-white font-bold">Buy Tokens</div>
+      <div>
+        <a
+          href="{% url 'home' %}"
+          class="py-2 px-4 text-white bg-gray-500 hover:bg-gray-600 rounded"
+          >Back to Dashboard</a
+        >
+      </div>
+    </nav>
+
+    <div class="container mx-auto my-8 px-4">
+      <h1 class="font-bold text-3xl mb-4">Purchase Tokens</h1>
+
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="token_cost" value="{{ token_cost }}" />
+        <div class="mb-4">
+          <label for="token_required" class="block text-lg font-bold mb-2">Token Amount</label>
+          <input
+            type="number"
+            name="token_required"
+            id="token_required"
+            class="w-full py-2 px-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          />
+        </div>
+
+        <button type="submit" class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded">
+          Submit
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+{% load static %}
+
+<a href="{% url 'social:begin' 'google-oauth2' %}">
+  <button>Login with Google</button>
+</a>
+<a href="{% url 'social:begin' 'twitter' %}">
+  <button>Login with Twitter</button>
+</a>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+  </head>
+  <body>
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+      <div class="max-w-md w-full p-6 bg-white rounded-md shadow-md">
+        <h2 class="text-3xl font-bold mb-6">Login</h2>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="mt-2 px-4 py-2 w-full border rounded-lg"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="mt-2 px-4 py-2 w-full border rounded-lg"
+            />
+          </div>
+
+          <div class="flex justify-between items-center mb-4">
+            <label for="remember_me" class="flex items-center">
+              <input type="checkbox" id="remember_me" name="remember_me" class="mr-2" />
+              <span class="text-sm">Remember me</span>
+            </label>
+
+            <a href="#" class="text-blue-500 hover:underline">Forgot password?</a>
+          </div>
+
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

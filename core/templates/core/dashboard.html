@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+  </head>
+  <body>
+    <nav class="flex items-center justify-between p-4 bg-gray-900">
+      <div class="text-white font-bold">Dashboard</div>
+      <div>
+        <a
+          href="{% url 'logout' %}"
+          class="py-2 px-4 text-white bg-red-500 hover:bg-red-600 rounded"
+          >Logout</a
+        >
+      </div>
+    </nav>
+
+    <div class="container mx-auto my-8 px-4">
+      <h1 class="font-bold text-3xl mb-4">Welcome, {{ user.username }}!</h1>
+
+      <div class="bg-gray-200 p-4 rounded mb-4">
+        <h2 class="font-bold text-xl mb-2">Subscription</h2>
+        {% if subscription.active %}
+        <p>Status: Active</p>
+        <p>Expires on: {{ subscription.subscription_ends }}</p>
+        {% else %}
+        <p>Status: Inactive</p>
+        {% endif %} You have {{ user.tokens }} Tokens left in your account.
+      </div>
+
+      <div class="bg-gray-200 p-4 rounded mb-4">
+        <h2 class="font-bold text-xl mb-2">Token Transactions</h2>
+        {% for transaction in token_transactions %}
+        <p>${{ transaction.amount }} tokens purchased on {{ transaction.timestamp }}.</p>
+        <p>You have {{ transaction.total_cost }} Tokens left in your account.</p>
+        {% endfor %}
+      </div>
+
+      <div class="bg-gray-200 p-4 rounded mb-4">
+        <h2 class="font-bold text-xl mb-2">User Actions</h2>
+        {% for action in user_actions %}
+        <p>{{ action.action }} on {{ action.timestamp }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
