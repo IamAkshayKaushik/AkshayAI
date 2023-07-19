@@ -5,7 +5,8 @@
 __pycache__
 db.sqlite3
 media
-/migrations/[0-9]*.py
+migrations/*
+!migrations/__init__.py
 
 # Jupyter Notebook
 .ipynb_checkpoints
