@@ -127,7 +127,7 @@ def process_payment(request):
         user.save()
 
         # Record token purchase
-        token_purchase = TokenPurchase(user=user, amount=token_required, total_cost=token_cost)
+        token_purchase = TokenPurchase(user=user, tokens=token_required, amount=token_cost)
         token_purchase.save()
 
         # Record user action
