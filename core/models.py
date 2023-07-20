@@ -67,8 +67,9 @@ class User(AbstractUser):
 
 class TokenPurchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField()
-    total_cost = models.DecimalField(max_digits=10, decimal_places=5)
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    tokens = models.PositiveIntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class UserAction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

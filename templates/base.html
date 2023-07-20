@@ -90,7 +90,13 @@
               href="{% url 'logout' %}"
               class="mr-3 inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-red-500 hover:bg-red-600 transition duration-150 ease-in-out focus:outline-none focus:ring-0 motion-reduce:transition-none"
               >Logout</a
-            >{% else %}
+            >
+            <a
+              href="{% url 'buy_tokens' %}"
+              class="mr-3 inline-block rounded px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white bg-blue-500 hover:bg-blue-600 transition duration-150 ease-in-out focus:outline-none focus:ring-0 motion-reduce:transition-none"
+              >Buy Tokens</a
+            >
+            {% else %}
             <button
               type="button"
               data-te-ripple-init
