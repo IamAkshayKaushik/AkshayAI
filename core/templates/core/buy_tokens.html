@@ -1,44 +1,80 @@
-{% load static %}
+{% extends 'base.html' %} {% block head %} {% comment %}
+https://tailwind-elements.com/docs/standard/forms/range/ {% endcomment %}
+<title>Buy Tokens</title>
+{% endblock %} {% block body %}
+<h1 class="font-bold text-3xl mb-4">Purchase Tokens</h1>
+<form method="POST">
+  {% csrf_token %}
+  <input type="hidden" name="token_cost" value="{{ token_cost }}" />
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Buy Tokens</title>
-    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-    <nav class="flex items-center justify-between p-4 bg-gray-900">
-      <div class="text-white font-bold">Buy Tokens</div>
-      <div>
-        <a
-          href="{% url 'home' %}"
-          class="py-2 px-4 text-white bg-gray-500 hover:bg-gray-600 rounded"
-          >Back to Dashboard</a
-        >
-      </div>
-    </nav>
+  <div class="w-full max-w-xs mx-auto">
+    <label for="token_required" class="mb-2 inline-block text-neutral-700 dark:text-neutral-200"
+      >Required Tokens</label
+    >
+    <input
+      type="range"
+      min="10000"
+      max="100000"
+      value="10000"
+      step="10000"
+      class="Slider"
+      id="sliderInput"
+    />
+    <input
+      type="number"
+      min="10000"
+      step="10000"
+      value="10000"
+      class="Slider box-input"
+      id="token_required"
+      name="token_required"
+    />
+  </div>
 
-    <div class="container mx-auto my-8 px-4">
-      <h1 class="font-bold text-3xl mb-4">Purchase Tokens</h1>
+  <button type="submit" class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded">
+    Submit
+  </button>
+</form>
 
-      <form method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="token_cost" value="{{ token_cost }}" />
-        <div class="mb-4">
-          <label for="token_required" class="block text-lg font-bold mb-2">Token Amount</label>
-          <input
-            type="number"
-            name="token_required"
-            id="token_required"
-            class="w-full py-2 px-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-          />
-        </div>
+<style>
+  .Slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+  }
 
-        <button type="submit" class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded">
-          Submit
-        </button>
-      </form>
-    </div>
-  </body>
-</html>
+  .Slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4caf50;
+    cursor: pointer;
+  }
+
+  .box-input {
+    width: 100%;
+    border-radius: 5px;
+    padding: 6px 12px;
+    border: 1px solid #d3d3d3;
+    margin-top: 10px;
+  }
+</style>
+
+<script>
+  var slider = document.getElementById("sliderInput");
+  var number = document.getElementById("token_required");
+
+  slider.oninput = function () {
+    number.value = this.value;
+  };
+
+  number.oninput = function () {
+    slider.value = this.value;
+  };
+</script>
+{% endblock %}

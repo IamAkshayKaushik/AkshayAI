@@ -275,7 +275,7 @@
         email: "{{ user.email }}",
       },
     };
-    const linkAuthenticationElement = elements.create("linkAuthentication");
+    const linkAuthenticationElement = elements.create("linkAuthentication", linkElementOptions);
     linkAuthenticationElement.mount("#link-authentication-element");
 
     linkAuthenticationElement.on("change", (event) => {
@@ -308,7 +308,7 @@
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: `http://localhost:8000/process_payment/?token_cost=${"{{ token_cost }}"}`,
+        return_url: "http://localhost:8000/process_payment/?token_cost={{ token_cost }}",
         receipt_email: emailAddress,
         client_secret: "{{clientSecret}}",
       },
