@@ -139,7 +139,8 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_URL = 'static/'
-
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -162,6 +163,6 @@ LOGOUT_REDIRECT_URL = 'login'
 STRIPE_PUBLIC_KEY = str(os.getenv('STRIPE_PUBLIC_KEY'))
 STRIPE_SECRET_KEY = str(os.getenv('STRIPE_SECRET_KEY'))
 
-
-TOKEN_PRICE = 0.00069
-# TOKEN_PRICE = 0.00049
+ELEVENLABS_API_KEY = str(os.getenv('ELEVENLABS_API_KEY'))
+# TOKEN_PRICE = 0.00069
+TOKEN_PRICE = 0.00049
