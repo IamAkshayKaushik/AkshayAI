@@ -53,6 +53,7 @@ from django.conf import settings
 # import timezone from django
 from django.utils import timezone
 from datetime import datetime, timedelta
+import os
 
 
 
@@ -71,14 +72,23 @@ class TokenPurchase(models.Model):
     tokens = models.PositiveIntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user}'s token purchase"
+
 class UserAction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user}'s action: {self.action}"
+
 class UserStripeRecord(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     stripe_customer_id = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.user.username
 
 class Subscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -89,8 +99,16 @@ class Subscription(models.Model):
     def is_active(self):
         return self.active and self.end_date >= timezone.now()
 
-
-class Usage(models.Model):
+class AudioFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    action = models.CharField(max_length=255)
+    text = models.TextField()
+    audio_url = models.FileField(upload_to='audio/', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    audio_id = models.CharField(max_length=255)
+
+    def delete(self, using=None, keep_parents=False):
+        os.unlink(self.audio_url.path)
+        super().delete()
+
+    def __str__(self):
+        return self.audio_id
