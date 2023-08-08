@@ -107,6 +107,7 @@ class AudioFile(models.Model):
     audio_url = models.FileField(upload_to='audio/', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     audio_id = models.CharField(max_length=255)
+    voice_id = models.CharField(max_length=255)
 
     def delete(self, using=None, keep_parents=False):
         try:
