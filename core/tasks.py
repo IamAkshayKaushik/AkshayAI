@@ -54,8 +54,8 @@ def convert_text_to_audio_task(user, text, audio_id):
         user=user,
         text=text,
         audio_url=f'audio/{current_task_id}.mp3',
-        audio_id=audio_id,
-        voice_id=current_task_id
+        audio_id=current_task_id,
+        voice_id=audio_id
     )
     # Deduct tokens from the user's balance
     user.tokens -= len(text)

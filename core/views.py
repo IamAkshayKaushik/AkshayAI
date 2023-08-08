@@ -164,12 +164,12 @@ def create_convert_text_to_audio_task(request):
     if request.method == 'POST':
         user = request.user
         text = request.POST.get('text')
-        audio_id = request.POST.get('voice')  # Generate a UUID in fronttend
+        voice_id = request.POST.get('voice')  # Generate a UUID in fronttend
         # Check if the user has sufficient tokens
         if user.tokens < len(text):
             return JsonResponse({'success': False, 'message': 'Insufficient tokens.'}, status=400)
         # Convert text to audio
-        task_id = convert_text_to_audio_task.delay(user.id, text, audio_id)
+        task_id = convert_text_to_audio_task.delay(user.id, text, voice_id)
         if task_id is None:
             return JsonResponse({'success': False, 'message': 'Unable to convert text to audio.'}, status=400)
 
@@ -178,6 +178,25 @@ def create_convert_text_to_audio_task(request):
         user_action = UserAction(user=user, action=action)
         user_action.save()
 
-        return JsonResponse({'success': True, 'message': 'Job created.', 'task_id': task_id.id}, status=200)
+        return JsonResponse({'success': True, 'message': 'Job created.', 'task_id': task_id.id}, status=202)
+
+    if request.method == 'GET':
+        from django_celery_results.models import TaskResult
+        from celery.result import AsyncResult
+        task_id = request.GET.get('task_id')
+
+        task_result = AsyncResult(task_id)
+        # task_result = TaskResult(task_id=task_id)
+        print(task_result.status)
+        print("###################################")
+        result = {
+            "task_id": task_id,
+            "task_status": task_result.status,
+            "task_result": task_result.result
+        }
+
+        if task_result.status == "SUCCESS":
+            result['audio_url'] = AudioFile.objects.get(audio_id=task_result.id).audio_url.url
+        return JsonResponse(result, status=200)
 
     return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=400)
