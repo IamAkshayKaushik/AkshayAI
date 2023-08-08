@@ -1,0 +1,102 @@
+{% extends 'base.html' %} {% block head %}
+<title>Text to Audio Converter</title>
+{% endblock head %} {% block body %}
+
+<div class="container mx-auto p-8">
+  <h1 class="text-3xl font-bold mb-4">Generate Audio</h1>
+  <form onSubmit="return generateAudio()" id="generate-form">
+    {% csrf_token %}
+    <label for="text" class="block mb-2">Enter Text:</label>
+    <textarea
+      name="text"
+      id="text"
+      rows="4"
+      class="w-full p-2 border rounded"
+      oninput="updateCharacterCount()"></textarea>
+    <p id="character-count" class="text-sm text-gray-500 mt-2">Character Count: 0</p>
+    <label for="voice" class="block mb-2 mt-4">Select Voice:</label>
+    <select name="voice" id="voice" class="w-full p-2 border rounded">
+      {% for voice in voices_list %}
+      <option value="{{voice.voice_id}}">{{voice.name}}</option>
+      {% endfor %}
+    </select>
+    <button
+      type="submit"
+      id="submit"
+      class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+      Generate
+    </button>
+  </form>
+  <div id="audio-link" class="hidden mt-4">
+    <p class="text-sm text-gray-500">
+      Generated Audio:
+      <a href="#" id="audio-download-link" class="text-blue-500 hover:underline">Download Audio</a>
+    </p>
+  </div>
+  <div class="mt-4">
+    <p class="mb-2">Sample Voices:</p>
+    <button class="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400" onclick="playVoice('voice1')">
+      Play Voice 1
+    </button>
+    <button class="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400" onclick="playVoice('voice2')">
+      Play Voice 2
+    </button>
+    <!-- Add more play buttons for other voices -->
+  </div>
+</div>
+<script>
+  {% comment %} let audio_voices = "{{ voices_list }}";
+  console.log(JSON.parse(audio_voices)); {% endcomment %}
+
+  function updateCharacterCount() {
+    var text = document.getElementById("text").value;
+    document.getElementById("character-count").textContent = "Character Count: " + text.length;
+  }
+
+  function generateAudio() {
+    let form = document.getElementById("generate-form");
+    let submit_button = document.getElementById("submit");
+    // disable the submit button
+    submit_button.disabled = true;
+    // Prevent default form submission behavior
+    event.preventDefault();
+
+    // Perform AJAX request to generate audio
+    let formData = new FormData(form);
+
+    fetch("text-to-audio-task/", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Handle the response data
+        var audioLinkDiv = document.getElementById("audio-link");
+        var audioDownloadLink = document.getElementById("audio-download-link");
+        audioDownloadLink.href = data.audio_url;
+        audioLinkDiv.classList.remove("hidden");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+</script>
+<script>
+  const voice_list = {
+    voice1: "link_to_voice1.mp3",
+    voice2: "link_to_voice2.mp3",
+    // Add more voices with their links as needed
+  };
+
+  function playVoice(voice) {
+    const audioLink = voice_list[voice];
+
+    if (audioLink) {
+      const audio = new Audio(audioLink);
+      audio.play();
+    } else {
+      console.error("Voice link not found");
+    }
+  }
+</script>
+{% endblock body %}

@@ -25,20 +25,40 @@
   </div>
 
   <div class="bg-gray-200 p-4 rounded mb-4">
-    <h2 class="font-bold text-xl mb-2">Token Transactions</h2>
-    {% for transaction in token_transactions %}
-    <p>
-      You have done a ${{ transaction.amount }} transaction to purhase {{ transaction.tokens }}
-      Tokens at {{ transaction.timestamp }}.
-    </p>
-    {% endfor %}
-  </div>
+    <h2 class="font-bold text-xl mb-2">History</h2>
+    <h3 class="font-bold text-l mb-2">
+      Full list of all your generated samples, ready for download.
+    </h3>
+    <table>
+      {% for audio in audio_files %}
+      <tr>
+        <td>{{ audio.text }}</td>
+        <td>
+          <audio controls id="player">
+            <source src="{{audio.audio_url.url}}" type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
 
-  <div class="bg-gray-200 p-4 rounded mb-4">
-    <h2 class="font-bold text-xl mb-2">User Actions</h2>
-    {% for action in user_actions %}
-    <p>{{ action.action }} on {{ action.timestamp }}</p>
-    {% endfor %}
+    <div class="bg-gray-200 p-4 rounded mb-4">
+      <h2 class="font-bold text-xl mb-2">Token Transactions</h2>
+      {% for transaction in token_transactions %}
+      <p>
+        You have done a ${{ transaction.amount }} transaction to purhase {{ transaction.tokens }}
+        Tokens at {{ transaction.timestamp }}.
+      </p>
+      {% endfor %}
+    </div>
+
+    <div class="bg-gray-200 p-4 rounded mb-4">
+      <h2 class="font-bold text-xl mb-2">User Actions</h2>
+      {% for action in user_actions %}
+      <p>{{ action.action }} on {{ action.timestamp }}</p>
+      {% endfor %}
+    </div>
   </div>
 </div>
 {% endblock %}

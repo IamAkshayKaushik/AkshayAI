@@ -4,24 +4,25 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 # from datetime import datetime, timedelta
-from .models import TokenPurchase, UserAction, Subscription, Usage, UserStripeRecord
-
+from .models import TokenPurchase, UserAction, Subscription, UserStripeRecord, AudioFile
 import stripe
+import requests
+from .tasks import convert_text_to_audio_task
 from social_django.utils import psa
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+ELEVENLABS_API_KEY = settings.ELEVENLABS_API_KEY
+
 
 @psa('social:complete')
 def google_login(request):
     return request.backend.do_auth(request.backend, redirect_name='home')
 
+
 @psa('social:complete')
 def twitter_login(request):
     return request.backend.do_auth(request.backend, redirect_name='home')
-
-
-
 
 
 @login_required
@@ -30,14 +31,16 @@ def dashboard(request):
     subscription = Subscription.objects.filter(user=user)
 
     # Get the user's usage history
-    usage_history = Usage.objects.filter(user=user).order_by('-timestamp')
+    usage_history = UserAction.objects.filter(user=user).order_by('-timestamp')
     token_purchase = TokenPurchase.objects.filter(user=user)
+    audio_files = AudioFile.objects.filter(user=user).order_by('-timestamp')
 
     context = {
         'user': user,
         'subscription': subscription,
         'user_actions': usage_history,
         'token_transactions': token_purchase,
+        'audio_files': audio_files
     }
     return render(request, 'core/dashboard.html', context)
 
@@ -69,14 +72,14 @@ def buy_tokens(request):
                 # "state": "California"
                 # }
                 metadata={'user_id': user.id},
-                )
+            )
             customer = UserStripeRecord.objects.create(user=user, stripe_customer_id=customer_object['id'])
 
         # Create a Stripe payment intent
         intent = stripe.PaymentIntent.create(
             customer=customer.stripe_customer_id,
             # setup_future_usage='off_session',
-            amount= int(token_cost * 100),
+            amount=int(token_cost * 100),
             currency='usd',
             description=f"{token_required} Tokens Purchase by {user.username}",
             automatic_payment_methods={
@@ -92,7 +95,7 @@ def buy_tokens(request):
             # 'payment_intent_id': payment_intent.id,
             'token_required': token_required,
             'token_cost': token_cost,
-            'STRIPE_PUBLIC_KEY':settings.STRIPE_PUBLIC_KEY
+            'STRIPE_PUBLIC_KEY': settings.STRIPE_PUBLIC_KEY
         }
 
         return render(request, 'core/confirm_payment.html', context)
@@ -100,13 +103,27 @@ def buy_tokens(request):
     return render(request, 'core/buy_tokens.html')
 
 
+def convert_text_to_audio(request):
+    url = "https://api.elevenlabs.io/v1/voices"
+
+    headers = {
+        "Accept": "application/json",
+        "xi-api-key": ELEVENLABS_API_KEY
+    }
+
+    voices_list = requests.get(url, headers=headers).json()
+    context = {
+        "voices_list": voices_list['voices']
+    }
+    return render(request, 'core/convert_text_to_audio.html', context)
+
 
 @login_required
 @csrf_exempt
 def process_payment(request):
     user = request.user
     client_secret = request.GET.get('payment_intent')
-    token_cost = float(request.GET.get('token_cost',0))
+    token_cost = float(request.GET.get('token_cost', 0))
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
     payment_intent = stripe.PaymentIntent.retrieve(client_secret)
@@ -141,34 +158,26 @@ def process_payment(request):
         return redirect('buy_tokens')
 
 
-
-
+@login_required
 @csrf_exempt
-def convert_text_to_audio(request):
+def create_convert_text_to_audio_task(request):
     if request.method == 'POST':
         user = request.user
         text = request.POST.get('text')
-        token_amount = int(request.POST.get('token_amount'))
-
+        audio_id = request.POST.get('voice')  # Generate a UUID in fronttend
         # Check if the user has sufficient tokens
-        if user.tokens < token_amount:
-            return JsonResponse({'success': False, 'message': 'Insufficient tokens.'})
-
-        # Deduct tokens from the user's balance
-        user.tokens -= token_amount
-        user.save()
-
-        # Perform the conversion using the elevenlabs.io API (implementation not provided)
+        if user.tokens < len(text):
+            return JsonResponse({'success': False, 'message': 'Insufficient tokens.'}, status=400)
+        # Convert text to audio
+        task_id = convert_text_to_audio_task.delay(user.id, text, audio_id)
+        if task_id is None:
+            return JsonResponse({'success': False, 'message': 'Unable to convert text to audio.'}, status=400)
 
         # Record user action
-        action = f"Converted text to audio: {text}"
+        action = f"Job created: id:{task_id}"
         user_action = UserAction(user=user, action=action)
         user_action.save()
 
-        # Record usage
-        usage = Usage(user=user, action=action)
-        usage.save()
+        return JsonResponse({'success': True, 'message': 'Job created.', 'task_id': task_id.id}, status=200)
 
-        return JsonResponse({'success': True, 'message': 'Text converted to audio.'})
-
-    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+    return JsonResponse({'success': False, 'message': 'Invalid request.'}, status=400)
