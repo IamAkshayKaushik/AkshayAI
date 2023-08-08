@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'core',
+    'django_celery_results'
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -121,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-#set timezone of india
+# set timezone of india
 TIME_ZONE = 'Asia/Kolkata'
 # TIME_ZONE = 'UTC'
 
@@ -166,3 +167,7 @@ STRIPE_SECRET_KEY = str(os.getenv('STRIPE_SECRET_KEY'))
 ELEVENLABS_API_KEY = str(os.getenv('ELEVENLABS_API_KEY'))
 # TOKEN_PRICE = 0.00069
 TOKEN_PRICE = 0.00049
+
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
