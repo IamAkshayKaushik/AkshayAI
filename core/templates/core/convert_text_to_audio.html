@@ -26,7 +26,8 @@
       type="submit"
       id="submit"
       class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-      Generate
+      <div class="spinner hidden" id="spinner"></div>
+      <span id="button-text">Generate</span>
     </button>
   </form>
   <div id="audio-link" class="hidden mt-4">
@@ -76,6 +77,7 @@
         return response.json();
       })
       .then((data) => {
+        setLoading(true);
         getStatus(data.task_id);
       })
       .catch((error) => {
@@ -94,18 +96,10 @@
         return response.json();
       })
       .then((res) => {
-        /*
-        const html = `
-        <tr>
-          <td>${res.task_id}</td>
-          <td>${res.task_status}</td>
-          <td>${res.task_result}</td>
-        </tr>`;
-        document.querySelector("#tasks").insertAdjacentHTML("afterbegin", html);
-        */
         const taskStatus = res.task_status;
 
         if (taskStatus === "SUCCESS") {
+          setLoading(false);
           let submit_button = document.getElementById("submit");
           // enable the submit button
           submit_button.disabled = false;
@@ -124,6 +118,7 @@
 
           return false;
         } else if (taskStatus === "FAILURE") {
+          setLoading(false);
           return false;
         }
         setTimeout(function () {
@@ -140,6 +135,7 @@
 
   let voice_samples_div = document.getElementById("voice_samples");
   let i = 0;
+
   voice_list.forEach(function (voice) {
     let button = document.createElement("button");
     button.textContent = voice.name;
@@ -162,5 +158,90 @@
       console.error("Voice link not found");
     }
   }
+
+  // Show a spinner on payment submission
+  function setLoading(isLoading) {
+    if (isLoading) {
+      // Disable the button and show a spinner
+      document.querySelector("#submit").disabled = true;
+      document.querySelector("#spinner").classList.remove("hidden");
+      document.querySelector("#button-text").classList.add("hidden");
+    } else {
+      document.querySelector("#submit").disabled = false;
+      document.querySelector("#spinner").classList.add("hidden");
+      document.querySelector("#button-text").classList.remove("hidden");
+    }
+  }
 </script>
+<style>
+  /* spinner/processing state, errors */
+  .spinner,
+  .spinner:before,
+  .spinner:after {
+    border-radius: 50%;
+  }
+  .spinner {
+    color: #ffffff;
+    font-size: 22px;
+    text-indent: -99999px;
+    margin: 0px auto;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    box-shadow: inset 0 0 0 2px;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  .spinner:before,
+  .spinner:after {
+    position: absolute;
+    content: "";
+  }
+  .spinner:before {
+    width: 10.4px;
+    height: 20.4px;
+    background: #5469d4;
+    border-radius: 20.4px 0 0 20.4px;
+    top: -0.2px;
+    left: -0.2px;
+    -webkit-transform-origin: 10.4px 10.2px;
+    transform-origin: 10.4px 10.2px;
+    -webkit-animation: loading 2s infinite ease 1.5s;
+    animation: loading 2s infinite ease 1.5s;
+  }
+  .spinner:after {
+    width: 10.4px;
+    height: 10.2px;
+    background: #5469d4;
+    border-radius: 0 10.2px 10.2px 0;
+    top: -0.1px;
+    left: 10.2px;
+    -webkit-transform-origin: 0px 10.2px;
+    transform-origin: 0px 10.2px;
+    -webkit-animation: loading 2s infinite ease;
+    animation: loading 2s infinite ease;
+  }
+
+  @-webkit-keyframes loading {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes loading {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+</style>
 {% endblock body %}
