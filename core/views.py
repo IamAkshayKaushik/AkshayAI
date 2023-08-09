@@ -103,6 +103,7 @@ def buy_tokens(request):
     return render(request, 'core/buy_tokens.html')
 
 
+@login_required
 def convert_text_to_audio(request):
     url = "https://api.elevenlabs.io/v1/voices"
 
