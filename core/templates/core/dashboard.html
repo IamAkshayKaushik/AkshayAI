@@ -43,22 +43,23 @@
       {% endfor %}
     </table>
 
-    <div class="bg-gray-200 p-4 rounded mb-4">
-      <h2 class="font-bold text-xl mb-2">Token Transactions</h2>
-      {% for transaction in token_transactions %}
-      <p>
-        You have done a ${{ transaction.amount }} transaction to purhase {{ transaction.tokens }}
-        Tokens at {{ transaction.timestamp }}.
-      </p>
-      {% endfor %}
-    </div>
-
+    {% comment %}
     <div class="bg-gray-200 p-4 rounded mb-4">
       <h2 class="font-bold text-xl mb-2">User Actions</h2>
       {% for action in user_actions %}
       <p>{{ action.action }} on {{ action.timestamp }}</p>
       {% endfor %}
     </div>
+    {% endcomment %}
+  </div>
+  <div class="bg-gray-200 p-4 rounded mb-4">
+    <h2 class="font-bold text-xl mb-2">Token Transactions</h2>
+    {% for transaction in token_transactions %}
+    <p>
+      You have done a ${{ transaction.amount }} transaction to purhase {{ transaction.tokens }}
+      Tokens at {{ transaction.timestamp }}.
+    </p>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}
