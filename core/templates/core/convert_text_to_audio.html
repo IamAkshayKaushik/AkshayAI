@@ -13,7 +13,9 @@
       rows="4"
       class="w-full p-2 border rounded"
       oninput="updateCharacterCount()"></textarea>
-    <p id="character-count" class="text-sm text-gray-500 mt-2">Character Count: 0</p>
+    <p id="character-count" class="text-sm text-gray-500 mt-2">
+      Character Count: 0 / {{user.tokens}}
+    </p>
     <label for="voice" class="block mb-2 mt-4">Select Voice:</label>
     <select name="voice" id="voice" class="w-full p-2 border rounded">
       {% for voice in voices_list %}
@@ -41,8 +43,14 @@
 {{ voices_list|json_script:"voices_json" }}
 <script>
   function updateCharacterCount() {
-    var text = document.getElementById("text").value;
-    document.getElementById("character-count").textContent = "Character Count: " + text.length;
+    let text = document.getElementById("text").value;
+    let textLength = text.length;
+    document.getElementById("character-count").classList.remove("text-red-500");
+    if (textLength > "{{ user.tokens }}") {
+      document.getElementById("character-count").classList.add("text-red-500");
+    }
+    document.getElementById("character-count").textContent =
+      "Character Count: " + text.length + "/" + "{{ user.tokens }}";
   }
 
   function generateAudio() {
@@ -60,7 +68,13 @@
       method: "POST",
       body: formData,
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status < 200 || response.status >= 300) {
+          submit_button.disabled = false;
+          throw new Error("You have insufficient tokens.");
+        }
+        return response.json();
+      })
       .then((data) => {
         getStatus(data.task_id);
       })
@@ -74,7 +88,7 @@
   function getStatus(taskID) {
     fetch(`/text-to-audio-task/?task_id=${taskID}`)
       .then((response) => {
-        if (!response.ok) {
+        if (response.status < 200 || response.status >= 300) {
           throw new Error("Network response was not ok");
         }
         return response.json();
@@ -96,10 +110,10 @@
           // enable the submit button
           submit_button.disabled = false;
           // set audio url
-          var audioLinkDiv = document.getElementById("audio-link");
-          var audioDownloadLink = document.getElementById("audio-download-link");
+          let audioLinkDiv = document.getElementById("audio-link");
+          let audioDownloadLink = document.getElementById("audio-download-link");
 
-          var x = document.createElement("AUDIO");
+          let x = document.createElement("AUDIO");
           x.setAttribute("id", "player");
           x.setAttribute("src", res.audio_url);
           x.setAttribute("controls", "controls");
@@ -123,7 +137,6 @@
 </script>
 <script>
   const voice_list = JSON.parse(document.getElementById("voices_json").textContent);
-  // console.log(voice_list[0].preview_url);
 
   let voice_samples_div = document.getElementById("voice_samples");
   let i = 0;
@@ -140,7 +153,6 @@
   });
 
   function playVoice(id) {
-    // console.log(voice_list[id]);
     const audioLink = voice_list[id].preview_url;
 
     if (audioLink) {
