@@ -308,7 +308,8 @@
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: "http://localhost:8000/process_payment/?token_cost={{ token_cost }}",
+        return_url:
+          "{{ request.scheme }}://{{ request.get_host }}{% url 'process_payment' %}/?token_cost={{ token_cost }}",
         receipt_email: emailAddress,
         client_secret: "{{clientSecret}}",
       },
