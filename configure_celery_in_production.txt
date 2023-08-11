@@ -1,0 +1,94 @@
+// https://dev.to/iamtekson/django-with-celery-in-production-cb5
+
+Create a file /etc/default/celeryd
+//here celeryd is filename consisting celery environment
+
+celeryd
+===================================
+# most people will only start one node:
+CELERYD_NODES="celery"
+
+# Absolute or relative path to the 'celery' command:
+CELERY_BIN="/home/akshaykaushik.eu.org/AI/.venv/bin/celery"
+
+# App instance to use
+CELERY_APP="Project"
+
+# Where to chdir at start.
+CELERYD_CHDIR="/home/akshaykaushik.eu.org/AI/"
+
+# Set logging level to INFO
+CELERYD_LOG_LEVEL="INFO"
+
+# %n will be replaced with the first part of the node name.
+CELERYD_LOG_FILE="/home/akshaykaushik.eu.org/AI/log/celery/%n%I.log"
+CELERYD_PID_FILE="/home/akshaykaushik.eu.org/AI/run/celery/%n.pid"
+
+# Workers should run as an unprivileged user.
+CELERYD_USER="aksha1706"
+CELERYD_GROUP="aksha1706"
+
+# If enabled, PID and log directories will be created if missing,
+# and owned by the userid/group configured.
+CELERY_CREATE_DIRS=1
+
+# Activate the virtual environment
+CELERYD_ENV="+/home/akshaykaushik.eu.org/AI/.venv/bin/activate"
+
+===================================
+chmod +x /etc/init.d/celeryd
+
+Create the log and pid folder and give them write permission
+
+
+
+Now create a file /etc/systemd/system/celery.service
+It consists configuration to start daemon service
+
+celery.service
+===================================
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+Type=forking
+User=aksha1706
+Group=aksha1706
+
+EnvironmentFile=/etc/default/celeryd
+WorkingDirectory=/home/akshaykaushik.eu.org/AI
+ExecStart=/bin/bash -c "source /home/akshaykaushik.eu.org/AI/.venv/bin/activate && \
+  /home/akshaykaushik.eu.org/AI/.venv/bin/celery multi start ${CELERYD_NODES} \
+  -A Project --pidfile=${CELERYD_PID_FILE} \
+  --logfile=${CELERYD_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL}"
+ExecStop=/bin/bash -c "source /home/akshaykaushik.eu.org/AI/.venv/bin/activate && \
+  /home/akshaykaushik.eu.org/AI/.venv/bin/celery multi stopwait ${CELERYD_NODES} \
+  --pidfile=${CELERYD_PID_FILE}"
+ExecReload=/bin/bash -c "source /home/akshaykaushik.eu.org/AI/.venv/bin/activate && \
+  /home/akshaykaushik.eu.org/AI/.venv/bin/celery multi restart ${CELERYD_NODES} \
+  -A Project --pidfile=${CELERYD_PID_FILE} \
+  --logfile=${CELERYD_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL}"
+
+[Install]
+WantedBy=multi-user.target
+
+===================================
+
+
+
+Now give executable permission to ./venv/bin/python3 and celery
+
+Run below commands
+
+sudo systemctl daemon-reload
+sudo systemctl enable celery
+sudo systemctl restart celery
+
+
+
+Run below command after activating virtual environment and going to django folder
+
+celery -A CELERY_APP_NAME worker -l INFO
+
+rerun aboave three commands
