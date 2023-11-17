@@ -1,4 +1,4 @@
-// https://dev.to/iamtekson/django-with-celery-in-production-cb5
+// https://www.linkedin.com/pulse/setting-up-celery-your-django-project-ubuntu-server-akshay-kaushik-t7r9c
 
 Create a file /etc/default/celeryd
 //here celeryd is filename consisting celery environment
@@ -92,3 +92,7 @@ Run below command after activating virtual environment and going to django folde
 celery -A CELERY_APP_NAME worker -l INFO
 
 rerun aboave three commands
+
+
+
+// https://dev.to/iamtekson/django-with-celery-in-production-cb5
