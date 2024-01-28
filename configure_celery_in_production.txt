@@ -36,10 +36,6 @@ CELERY_CREATE_DIRS=1
 CELERYD_ENV="+/home/akshaykaushik.eu.org/AI/.venv/bin/activate"
 
 ===================================
-# chmod +x /etc/init.d/celeryd
-chmod +x /etc/default/celeryd
-
-Create the log and pid folder and give them write permission
 
 
 
@@ -86,7 +82,10 @@ sudo systemctl daemon-reload
 sudo systemctl enable celery
 sudo systemctl restart celery
 
+chmod +x /etc/init.d/celeryd
+chmod +x /etc/default/celeryd
 
+Create the log and pid folder and give them write permission
 
 Run below command after activating virtual environment and going to django folder
 
