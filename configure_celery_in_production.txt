@@ -36,7 +36,8 @@ CELERY_CREATE_DIRS=1
 CELERYD_ENV="+/home/akshaykaushik.eu.org/AI/.venv/bin/activate"
 
 ===================================
-chmod +x /etc/init.d/celeryd
+# chmod +x /etc/init.d/celeryd
+chmod +x /etc/default/celeryd
 
 Create the log and pid folder and give them write permission
 
