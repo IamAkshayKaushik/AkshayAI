@@ -6,7 +6,7 @@ Create a file /etc/default/celeryd
 celeryd
 ===================================
 # most people will only start one node:
-CELERYD_NODES="celery"
+CELERYD_NODES="celery" # should be same as your project name, sometimes didn't work if different
 
 # Absolute or relative path to the 'celery' command:
 CELERY_BIN="/home/akshaykaushik.eu.org/AI/.venv/bin/celery"
